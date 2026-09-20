@@ -8,4 +8,8 @@ export interface UserStats {
     totalGoalsAchieved: number;
     averageCompletion: number;
     lastUpdated: string;
+    
+    // Penalidades
+    totalPenaltyXp: number;
+    lastPenaltyEvaluationDate?: string;
 }

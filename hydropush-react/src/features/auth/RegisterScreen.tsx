@@ -10,7 +10,8 @@ interface RegisterScreenProps {
   onSwitchToLogin: () => void;
   onRegisterSuccess: () => void;
   error?: string;
-  onError: (error: string) => void;
+   
+  onError: (_error: string) => void;
 }
 
 // Mapeamento entre os valores do formulário e os valores esperados pelo AuthContext
@@ -164,7 +165,7 @@ export function RegisterScreen({
   return (
     <div className="min-h-screen bg-background flex items-center justify-center p-6">
       <motion.div
-        className="w-full max-w-sm bg-card rounded-2xl shadow-lg border border-border p-8"
+        className="w-full max-w-md bg-card rounded-2xl shadow-lg border border-border p-8"
         initial={{ opacity: 0, y: 20 }}
         animate={{ opacity: 1, y: 0 }}
         transition={{ duration: 0.5 }}

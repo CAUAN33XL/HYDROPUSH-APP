@@ -150,7 +150,7 @@ export function HistoryView() {
           <h3 className="text-lg font-semibold text-foreground mb-2">
             Nenhum dado de histórico
           </h3>
-          <p className="text-muted-foreground mb-6 max-w-sm mx-auto">
+          <p className="text-muted-foreground mb-6 max-w-lg mx-auto">
             Seu histórico de hidratação aparecerá aqui conforme você for registrando seu consumo diário de água.
           </p>
           <div className="bg-card/50 p-6 rounded-2xl border border-border max-w-md mx-auto">

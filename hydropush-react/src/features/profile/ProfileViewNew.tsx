@@ -928,7 +928,7 @@ export function ProfileViewNew() {
                 align: "center",
                 loop: true,
               }}
-              className="w-full max-w-sm mx-auto"
+              className="w-full max-w-4xl mx-auto"
             >
               <CarouselContent className="-ml-2 md:-ml-4">
                 {trophies.map((trophy, index) => {
@@ -1380,7 +1380,7 @@ export function ProfileViewNew() {
       {/* Modal de Preview dos Troféus */}
       <Dialog open={!!selectedTrophy
       } onOpenChange={() => setSelectedTrophy(null)}>
-        <DialogContent className="max-w-sm mx-auto">
+        <DialogContent className="max-w-md mx-auto">
           <DialogHeader>
             <DialogTitle className="text-center">
               Troféu {selectedTrophy?.name}

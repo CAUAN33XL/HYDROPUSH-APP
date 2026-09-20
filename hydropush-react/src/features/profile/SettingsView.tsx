@@ -1,4 +1,4 @@
-import React, { useState, useEffect } from 'react';
+import React, { useState } from 'react';
 import {
   Moon,
   ChevronRight,
@@ -12,68 +12,36 @@ import {
   AlertCircle,
   LogOut,
   Trash2,
-  Sun,
-  Download,
-  Upload
+  Sun
 } from 'lucide-react';
 import { Switch } from '../../shared/components/ui/switch';
 import { Button } from '../../shared/components/ui/button';
 import { motion } from 'motion/react';
 import { useAuth } from '../../contexts/AuthContext';
-import { storageService } from '../../core/services/StorageService';
+
 import { useTheme } from '../../contexts/ThemeContext';
 import { RatingScreen } from './RatingScreen';
 import { HelpSupportScreen } from './HelpSupportScreen';
 import { PrivacyPolicyScreen } from './PrivacyPolicyScreen';
 // ThemeColorPicker removed: color-theme feature deprecated
-import { NotificationSettings } from './NotificationSettings';
-
 // Lazy load do DebugPanel para reduzir bundle inicial
 const DebugPanel = React.lazy(() => import('../../shared/components/DebugPanel').then(module => ({ default: module.DebugPanel })));
 
 
 interface SettingsViewProps {
   className?: string;
-  onSettingsChange?: (settings: unknown) => void;
-  onExportData?: () => boolean;
-  onImportData?: (file: File) => Promise<boolean>;
 }
 
-export function SettingsView({ className, onSettingsChange, onExportData, onImportData }: SettingsViewProps) {
+export function SettingsView({ className }: SettingsViewProps) {
   const { user, isGuest, logout } = useAuth();
   const { theme, setTheme } = useTheme();
 
-  const [settings, setSettings] = useState({
-    notifications: true,
-    reminderInterval: 120, // minutos
-    quietHours: { start: '22:00', end: '07:00' },
-    weekendReminders: true,
-    smartReminders: true,
-    // email fields removed: handled in NotificationSettings
-  });
 
-  useEffect(() => {
-    try {
-      const us = storageService.loadUserSettings();
-      setSettings(prev => ({
-        ...prev,
-        notifications: us.notifications,
-        reminderInterval: us.reminderInterval,
-        quietHours: us.quietHours,
-        weekendReminders: us.weekendReminders,
-        smartReminders: us.smartReminders,
-        // email settings are handled inside NotificationSettings
-      }));
-    } catch (e) {
-      // ignore
-    }
-  }, []);
 
 
   const [showLogoutConfirm, setShowLogoutConfirm] = useState(false);
   const [showDeleteConfirm, setShowDeleteConfirm] = useState(false);
   const [currentScreen, setCurrentScreen] = useState<'main' | 'rating' | 'help' | 'privacy'>('main');
-  const [isImporting, setIsImporting] = useState(false);
   const [debugPanelOpen, setDebugPanelOpen] = useState(false);
   const [showPasswordModal, setShowPasswordModal] = useState(false);
   const [debugPassword, setDebugPassword] = useState('');
@@ -81,22 +49,7 @@ export function SettingsView({ className, onSettingsChange, onExportData, onImpo
   const [clickCount, setClickCount] = useState(0);
   const clickTimerRef = React.useRef<number | null>(null);
 
-  const toggleSetting = (key: string) => {
-    setSettings(prev => ({
-      ...prev,
-      [key]: !prev[key as keyof typeof prev]
-    }));
-  };
 
-  // Helper para persistir configurações de usuário relacionadas a lembretes
-  const persistUserSetting = (partial: Record<string, unknown>) => {
-    try {
-      storageService.saveUserSettings(partial as any);
-      onSettingsChange?.(partial);
-    } catch (e) {
-      console.warn('Erro ao persistir configuração de usuário', e);
-    }
-  };
 
 
 
@@ -104,26 +57,6 @@ export function SettingsView({ className, onSettingsChange, onExportData, onImpo
     logout(clearData);
     setShowLogoutConfirm(false);
     setShowDeleteConfirm(false);
-  };
-
-  const handleExportData = () => {
-    if (onExportData) {
-      onExportData();
-    }
-  };
-
-  const handleImportData = async (event: React.ChangeEvent<HTMLInputElement>) => {
-    const file = event.target.files?.[0];
-    if (file && onImportData) {
-      setIsImporting(true);
-      try {
-        await onImportData(file);
-      } finally {
-        setIsImporting(false);
-        // Reset the input
-        event.target.value = '';
-      }
-    }
   };
 
   // Renderizar telas específicas
@@ -147,12 +80,6 @@ export function SettingsView({ className, onSettingsChange, onExportData, onImpo
         <h1 className="text-2xl font-semibold text-foreground">Configurações</h1>
         <p className="text-muted-foreground mt-1">Personalize sua experiência</p>
       </div>
-
-      {/* Seção de Notificações */}
-      <NotificationSettings onSettingsChange={(newSettings) => {
-        console.log('Configurações de notificação atualizadas:', newSettings);
-        onSettingsChange?.(newSettings);
-      }} />
 
 
 
@@ -314,7 +241,7 @@ export function SettingsView({ className, onSettingsChange, onExportData, onImpo
       {showLogoutConfirm && (
         <div className="fixed inset-0 bg-black/50 flex items-center justify-center z-50 p-4">
           <motion.div
-            className="bg-card rounded-2xl p-6 max-w-sm w-full border border-border"
+            className="bg-card rounded-2xl p-6 max-w-md md:max-w-2xl mx-auto w-full border border-border"
             initial={{ scale: 0.9, opacity: 0 }}
             animate={{ scale: 1, opacity: 1 }}
           >
@@ -349,7 +276,7 @@ export function SettingsView({ className, onSettingsChange, onExportData, onImpo
       {showDeleteConfirm && (
         <div className="fixed inset-0 bg-black/50 flex items-center justify-center z-50 p-4">
           <motion.div
-            className="bg-card rounded-2xl p-6 max-w-sm w-full border border-border"
+            className="bg-card rounded-2xl p-6 max-w-md md:max-w-2xl mx-auto w-full border border-border"
             initial={{ scale: 0.9, opacity: 0 }}
             animate={{ scale: 1, opacity: 1 }}
           >
@@ -398,7 +325,7 @@ export function SettingsView({ className, onSettingsChange, onExportData, onImpo
         </p>
         <div className="mt-4 pt-4 border-t border-white/20">
           <p
-            className="text-xs text-white/60 cursor-pointer select-none hover:text-white/80 transition"
+            className="text-xs text-white/60 select-none"
             onClick={() => {
               setClickCount(prev => prev + 1);
 
@@ -433,7 +360,7 @@ export function SettingsView({ className, onSettingsChange, onExportData, onImpo
       {showPasswordModal && (
         <div className="fixed inset-0 bg-black/50 flex items-center justify-center z-50 p-4">
           <motion.div
-            className="bg-card rounded-2xl p-6 max-w-sm w-full border border-border"
+            className="bg-card rounded-2xl p-6 max-w-sm md:max-w-md mx-auto w-full border border-border"
             initial={{ scale: 0.9, opacity: 0 }}
             animate={{ scale: 1, opacity: 1 }}
           >

@@ -1,5 +1,5 @@
 import React from 'react';
-import { motion } from 'motion/react';
+
 
 interface SkeletonProps {
     className?: string;
@@ -155,6 +155,34 @@ export function LoadingOverlay({ isLoading, children, loadingComponent }: Loadin
             <div className="absolute inset-0 flex items-center justify-center bg-background/50 backdrop-blur-sm">
                 {loadingComponent || <LoadingSpinner size="lg" />}
             </div>
+        </div>
+    );
+}
+
+export function InitialLoadingScreen() {
+    return (
+        <div style={{
+            display: 'flex',
+            flexDirection: 'column',
+            justifyContent: 'center',
+            alignItems: 'center',
+            height: '100vh',
+            backgroundColor: '#0A0E13',
+            color: '#fff'
+        }}>
+            <div style={{
+                width: '50px',
+                height: '50px',
+                border: '4px solid rgba(30, 136, 229, 0.2)',
+                borderTopColor: '#1E88E5',
+                borderRadius: '50%',
+                animation: 'spin 1s linear infinite',
+                marginBottom: '20px'
+            }} />
+            <p>Carregando Hydropush...</p>
+            <style>{
+                `@keyframes spin { to { transform: rotate(360deg); } }`
+            }</style>
         </div>
     );
 }

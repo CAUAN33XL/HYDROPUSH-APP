@@ -28,7 +28,9 @@ O **Hydropush** é um aplicativo para monitoramento de hidratação desenvolvido
 - 🌙 **Temas Claro e Escuro** com troca em tempo real
 - 🔒 **100% Offline-First** — dados salvos localmente no dispositivo via SQLite/LocalStorage
 - 🏆 **Sistema de conquistas** e progressão de nível
-- 📱 **Design responsivo** com estética Glassmorphism
+- 📱 **Interface Fluida e Unificada**: Layout de Bottom Dock (navegação inferior fixa) dinâmico que se adapta perfeitamente do smartphone aos grandes monitores.
+- 🎨 **Estética Glassmorphism Premium**: Translucidez, micro-animações e componentes que escalam dinamicamente.
+- 📐 **Arquitetura CSS Modular**: Uso do Tailwind v4 acoplado a uma hierarquia de CSS modularizada, mantendo a performance altíssima e o código escalável.
 
 ---
 

@@ -311,7 +311,7 @@ export function MonthlyCalendar() {
             onClick={() => setSelectedDay(null)}
           >
             <motion.div
-              className="bg-card rounded-2xl p-6 max-w-sm w-full border border-border shadow-2xl"
+              className="bg-card rounded-2xl p-6 max-w-md md:max-w-xl w-full border border-border shadow-2xl"
               initial={{ scale: 0.8, opacity: 0, y: 50 }}
               animate={{ scale: 1, opacity: 1, y: 0 }}
               exit={{ scale: 0.8, opacity: 0, y: 50 }}

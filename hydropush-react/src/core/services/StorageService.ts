@@ -6,7 +6,6 @@ import { UserSettings, AppSettings } from '../models/Settings';
 import { UserStats } from '../models/UserStats';
 import { ColorTheme, ThemingSettings } from '../models/Theme';
 import { AuthData } from '../models/Auth';
-import { NotificationSettings } from '../models/Notification';
 import { Tip } from '../models/Tip';
 import { FeedbackData } from '../models/Feedback';
 import { Preferences } from '@capacitor/preferences';
@@ -17,7 +16,6 @@ export type {
   UserStats,
   ColorTheme, ThemingSettings,
   AuthData,
-  NotificationSettings,
   Tip,
   FeedbackData
 };
@@ -127,7 +125,7 @@ class StorageService {
       // Try parsing
       JSON.parse(value);
       return false;
-    } catch (e) {
+    } catch {
       return true;
     }
   }
@@ -261,7 +259,7 @@ class StorageService {
                   this.memoryCache.set(key, backup);
                 }
               }
-            } catch (e) {
+            } catch {
               // Se não for JSON, salvar como string mesmo (casos legados ou flags simples)
               this.memoryCache.set(key, value);
             }
@@ -279,6 +277,9 @@ class StorageService {
 
       // 4. Check memory pressure
       this.checkMemoryPressure();
+
+      // Avaliar penalidades do modo hardcore
+      this.evaluateDailyPenalties();
 
       this.initialized = true;
       this.degradedMode = false;
@@ -416,7 +417,8 @@ class StorageService {
   }
 
   // Permite que partes da aplicação escutem mudanças locais no storage
-  subscribe(key: string, cb: (value: unknown | null) => void) {
+   
+  subscribe(key: string, cb: (_value: unknown | null) => void) {
     const handler = (e: Event) => {
       const ev = e as CustomEvent;
       if (!ev?.detail) return;
@@ -564,29 +566,6 @@ class StorageService {
     return this.getItem<UserSettings>(STORAGE_KEYS.USER_SETTINGS) || defaultSettings;
   }
 
-  // ===== CONFIGURAÇÕES DE NOTIFICAÇÃO =====
-
-  // Salvar configurações de notificação
-  saveNotificationSettings(settings: Partial<NotificationSettings>): void {
-    const currentSettings = this.loadNotificationSettings();
-    this.setItem(STORAGE_KEYS.NOTIFICATION_SETTINGS, {
-      ...currentSettings,
-      ...settings
-    });
-  }
-
-  // Carregar configurações de notificação
-  loadNotificationSettings(): NotificationSettings {
-    const defaultSettings: NotificationSettings = {
-      enabled: false,
-      permission: 'default',
-      lastRequested: new Date().toISOString(),
-      scheduledReminders: false,
-      reminderTimes: []
-    };
-
-    return this.getItem<NotificationSettings>(STORAGE_KEYS.NOTIFICATION_SETTINGS) || defaultSettings;
-  }
 
   // ===== CONFIGURAÇÕES DO APP =====
 
@@ -966,7 +945,9 @@ class StorageService {
         monthlyGoalsAchieved: 0,
         totalGoalsAchieved: 0,
         averageCompletion: 0,
-        lastUpdated: new Date().toISOString()
+        lastUpdated: new Date().toISOString(),
+        totalPenaltyXp: 0,
+        lastPenaltyEvaluationDate: undefined
       };
     }
 
@@ -1025,7 +1006,9 @@ class StorageService {
       monthlyGoalsAchieved,
       totalGoalsAchieved,
       averageCompletion: Math.round(averageCompletion),
-      lastUpdated: new Date().toISOString()
+      lastUpdated: new Date().toISOString(),
+      totalPenaltyXp: this.getItem<UserStats>(STORAGE_KEYS.USER_STATS)?.totalPenaltyXp || 0,
+      lastPenaltyEvaluationDate: this.getItem<UserStats>(STORAGE_KEYS.USER_STATS)?.lastPenaltyEvaluationDate
     };
   }
 
@@ -1034,9 +1017,74 @@ class StorageService {
     this.setItem(STORAGE_KEYS.USER_STATS, stats);
   }
 
-  // Carregar estatísticas salvas
   loadUserStats(): UserStats {
     return this.getItem<UserStats>(STORAGE_KEYS.USER_STATS) || this.calculateUserStats();
+  }
+
+  // Avaliar penalidades diárias (Modo Hardcore)
+  evaluateDailyPenalties(): { penaltyApplied: number, missedDays: number } {
+    const stats = this.loadUserStats();
+    const history = this.loadHydrationHistory();
+    const today = new Date();
+    today.setHours(0, 0, 0, 0); // Zera hora para comparar apenas a data
+
+    // Verificar quando foi a última avaliação (se não existir, usa a data de criação/primeiro histórico ou hoje)
+    let lastEvalDate = stats.lastPenaltyEvaluationDate ? new Date(stats.lastPenaltyEvaluationDate) : today;
+    lastEvalDate.setHours(0, 0, 0, 0);
+
+    // Se já foi avaliado hoje, não faz nada
+    if (lastEvalDate.getTime() >= today.getTime()) {
+      return { penaltyApplied: 0, missedDays: 0 };
+    }
+
+    // Calcula os dias perdidos entre lastEvalDate e hoje
+    const missedDays: string[] = [];
+    const oneDayMs = 24 * 60 * 60 * 1000;
+    
+    // Iterar dia a dia desde a última avaliação até ontem
+    for (let time = lastEvalDate.getTime(); time < today.getTime(); time += oneDayMs) {
+      const dateToCheck = new Date(time);
+      const dateString = dateToCheck.toLocaleDateString('en-CA');
+      
+      const dayHistory = history.find(h => h.date === dateString);
+      // Se não tem histórico para aquele dia, ou se tem e a quantidade é menor que a meta
+      if (!dayHistory || dayHistory.amount < dayHistory.goal) {
+        missedDays.push(dateString);
+      }
+    }
+
+    let penaltyXp = 0;
+    
+    if (missedDays.length > 0) {
+      let consecutiveMisses = 0;
+
+      // Ordenar do mais antigo pro mais novo para aplicar o multiplicador de sequência negativa
+      missedDays.sort().forEach(date => {
+        consecutiveMisses++;
+        // Multiplicador: -50 no primeiro dia, -100 no segundo, -150 no terceiro, etc.
+        const dayPenalty = 50 * consecutiveMisses;
+        penaltyXp += dayPenalty;
+        console.log(`[Gamification] Penalidade aplicada: -${dayPenalty} XP por falhar a meta em ${date}`);
+      });
+
+      stats.totalPenaltyXp += penaltyXp;
+      console.warn(`[Gamification] Total de penalidades acumuladas: -${penaltyXp} XP (${missedDays.length} dias perdidos)`);
+    }
+
+    // Atualiza a data de última avaliação
+    stats.lastPenaltyEvaluationDate = today.toISOString();
+    this.saveUserStats(stats);
+    
+    if (penaltyXp > 0) {
+      // Dispatch event to show the modal in the UI
+      setTimeout(() => {
+        window.dispatchEvent(new CustomEvent('penalty:applied', { 
+          detail: { penaltyXp, missedDays: missedDays.length } 
+        }));
+      }, 1000); // Small delay to let the app finish loading before showing the modal
+    }
+    
+    return { penaltyApplied: penaltyXp, missedDays: missedDays.length };
   }
   // Estimar uso de armazenamento
   estimateStorageUsage(): { bytes: number; items: number } {

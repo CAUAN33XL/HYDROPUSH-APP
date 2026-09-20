@@ -1,7 +1,7 @@
 // src/components/WaterGlass.tsx
 import React, { useEffect, useState } from 'react';
 import { motion, useAnimation } from 'motion/react';
-import { storageService } from '../../core/services/StorageService';
+import { storageService } from '../../../../core/services/StorageService';
 
 interface WaterGlassProps {
   currentAmount: number;
@@ -10,6 +10,10 @@ interface WaterGlassProps {
   animated?: boolean;
 }
 
+/**
+ * @description Componente visual principal de hidratação (Copo de Água).
+ * Desenha um copo estilizado (com CSS/SVG e framer-motion) preenchido conforme a porcentagem da meta de água.
+ */
 export function WaterGlass({ currentAmount, dailyGoal, size = 'md', animated = true }: WaterGlassProps) {
   const controls = useAnimation();
   const [displayAmount, setDisplayAmount] = useState(0);
@@ -80,10 +84,14 @@ export function WaterGlass({ currentAmount, dailyGoal, size = 'md', animated = t
 
   return (
     <div className="relative flex flex-col items-center">
-      <div className="relative">
+      <div className={`relative transition-all duration-300 ${
+        size === 'sm' ? 'w-[120px] h-[160px]' :
+        size === 'md' ? 'w-[160px] h-[200px]' :
+        size === 'lg' ? 'w-[240px] h-[300px] md:w-[280px] md:h-[350px] xl:w-[340px] xl:h-[425px]' : ''
+      }`}>
         <svg
-          width={width}
-          height={height}
+          width="100%"
+          height="100%"
           viewBox={`0 0 ${width} ${height}`}
           className="drop-shadow-sm"
         >

@@ -1,0 +1,225 @@
+@layer base {
+  * {
+    @apply border-border outline-ring/50;
+  }
+
+  /* Aplicação forçada e imediata dos temas */
+  html,
+  html.light {
+    color-scheme: light !important;
+  }
+
+  html.dark {
+    color-scheme: dark !important;
+  }
+
+  /* Garantir aplicação imediata das variáveis de tema - LIGHT THEME */
+  html:not(.dark),
+  html.light,
+  html.light *,
+  .light,
+  .light *,
+  :root:not(.dark) {
+    --background: #ffffff !important;
+    --foreground: #0F1724 !important;
+    --card: #ffffff !important;
+    --card-foreground: #0F1724 !important;
+    --popover: #ffffff !important;
+    --popover-foreground: #0F1724 !important;
+    --muted: #E5E7EB !important;
+    --muted-foreground: #374151 !important;
+    --border: rgba(0, 0, 0, 0.1) !important;
+    --input-background: #f3f3f5 !important;
+    --switch-background: #cbced4 !important;
+  }
+
+  /* Garantir aplicação imediata das variáveis de tema - DARK THEME */
+  html.dark,
+  html.dark *,
+  .dark,
+  .dark * {
+    --background: #0A0E13 !important;
+    --foreground: #F8FAFC !important;
+    --card: #0E1318 !important;
+    --card-foreground: #F8FAFC !important;
+    --popover: #0E1318 !important;
+    --popover-foreground: #F8FAFC !important;
+    --muted: #161B21 !important;
+    --muted-foreground: #CBD5E1 !important;
+    --border: rgba(59, 130, 246, 0.2) !important;
+    --input-background: #1E293B !important;
+    --switch-background: #475569 !important;
+  }
+
+  /* Otimizações para mobile */
+  html,
+  body {
+    height: 100dvh;
+    overflow: hidden;
+  }
+
+  #root {
+    height: 100%;
+    overflow: hidden;
+  }
+
+  body {
+    @apply bg-background text-foreground;
+    -webkit-font-smoothing: antialiased;
+    -moz-osx-font-smoothing: grayscale;
+    touch-action: manipulation;
+    -webkit-tap-highlight-color: transparent;
+    overflow-x: hidden;
+    scroll-behavior: smooth;
+    /* Hardware acceleration para animações */
+    transform: translate3d(0, 0, 0);
+    /* Transições suaves apenas para mudanças de tema */
+    transition: background-color 0.2s ease, color 0.2s ease;
+  }
+
+  /* Forçar aplicação imediata do tema claro no body */
+  html:not(.dark) body,
+  html.light body {
+    background-color: #ffffff !important;
+    color: #0F1724 !important;
+  }
+
+  /* Forçar aplicação imediata do tema escuro no body */
+  html.dark body {
+    background-color: #0A0E13 !important;
+    color: #F8FAFC !important;
+  }
+
+  /* Elementos que devem aplicar transições suaves para tema */
+  .bg-card,
+  .bg-background,
+  .bg-muted,
+  .text-foreground,
+  .text-muted-foreground,
+  .border-border {
+    transition: background-color 0.2s ease, color 0.2s ease, border-color 0.2s ease;
+  }
+
+  /* Color scheme baseado no tema atual */
+  html {
+    color-scheme: light;
+  }
+
+  html.dark {
+    color-scheme: dark;
+  }
+
+}
+
+/**
+ * Base typography. This is not applied to elements which have an ancestor with a Tailwind text class.
+ */
+@layer base {
+  :where(:not(:has([class*=" text-"]), :not(:has([class^="text-"])))) {
+    h1 {
+      font-size: var(--text-2xl);
+      font-weight: var(--font-weight-medium);
+      line-height: 1.5;
+    }
+
+    h2 {
+      font-size: var(--text-xl);
+      font-weight: var(--font-weight-medium);
+      line-height: 1.5;
+    }
+
+    h3 {
+      font-size: var(--text-lg);
+      font-weight: var(--font-weight-medium);
+      line-height: 1.5;
+    }
+
+    h4 {
+      font-size: var(--text-base);
+      font-weight: var(--font-weight-medium);
+      line-height: 1.5;
+    }
+
+    p {
+      font-size: var(--text-base);
+      font-weight: var(--font-weight-normal);
+      line-height: 1.5;
+    }
+
+    label {
+      font-size: var(--text-base);
+      font-weight: var(--font-weight-medium);
+      line-height: 1.5;
+    }
+
+    button {
+      font-size: var(--text-base);
+      font-weight: var(--font-weight-medium);
+      line-height: 1.5;
+    }
+
+    input {
+      font-size: var(--text-base);
+      font-weight: var(--font-weight-normal);
+      line-height: 1.5;
+    }
+  }
+}
+
+html {
+  font-size: var(--font-size);
+  /* Impedir zoom em dispositivos móveis em campos de input */
+  -webkit-text-size-adjust: 100%;
+}
+
+/* Definir largura máxima para smartphone padrão */
+@media (min-width: 640px) {
+  .smartphone-container {
+    max-width: 428px;
+    /* iPhone 12 Pro Max width como referência */
+    margin: 0 auto;
+  }
+}
+
+/* Accessibility respects */
+@media (prefers-reduced-motion: reduce) {
+  * {
+    animation-duration: 0.001ms !important;
+    animation-iteration-count: 1 !important;
+    transition-duration: 0.001ms !important;
+    scroll-behavior: auto !important;
+  }
+}
+
+@media (prefers-contrast: more) {
+  :root {
+    --glass-border: color-mix(in srgb, var(--color-foreground) 30%, transparent);
+    --glass-border-dark: color-mix(in srgb, var(--color-foreground) 20%, transparent);
+  }
+}
+
+/* Mobile-app look: hide native scrollbars but keep scrolling functional */
+/* This gives a more 'app-like' fullscreen experience while preserving accessibility. */
+html,
+body,
+.smartphone-container {
+  scrollbar-width: none;
+  /* Firefox */
+  -ms-overflow-style: none;
+  /* IE 10+ */
+}
+
+html::-webkit-scrollbar,
+body::-webkit-scrollbar,
+.smartphone-container::-webkit-scrollbar {
+  width: 0px;
+  height: 0px;
+  background: transparent;
+}
+
+/* Minimal, elegant scrollbar for all scrollable containers */
+*::-webkit-scrollbar { width: 6px; height: 6px; }
+*::-webkit-scrollbar-track { background: transparent; }
+*::-webkit-scrollbar-thumb { background: rgba(128,128,128,0.25); border-radius: 8px; }
+*::-webkit-scrollbar-thumb:hover { background: rgba(128,128,128,0.5); }
+

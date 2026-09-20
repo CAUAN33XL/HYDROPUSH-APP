@@ -1,0 +1,89 @@
+/* Liquid glass aesthetic utilities */
+.liquid-glass {
+  background: var(--glass-bg);
+  backdrop-filter: blur(var(--glass-blur)) saturate(1.12);
+  -webkit-backdrop-filter: blur(var(--glass-blur)) saturate(1.12);
+  border: 1px solid var(--glass-border);
+  box-shadow: var(--shadow-subtle);
+  border-radius: var(--radius-md);
+}
+
+.liquid-glass--light {
+  background: linear-gradient(180deg, rgba(255, 255, 255, 0.8), rgba(255, 255, 255, 0.6));
+  border: 1px solid rgba(0, 0, 0, 0.06);
+  box-shadow: 0 6px 18px rgba(15, 23, 36, 0.04);
+}
+
+.liquid-glass--dark {
+  background: var(--glass-bg-dark);
+  border: 1px solid var(--glass-border-dark);
+  box-shadow: 0 8px 24px rgba(2, 6, 23, 0.6);
+}
+
+/* Apply liquid glass globally when enabled on the root element */
+.liquid-glass-enabled .bg-card,
+.liquid-glass-enabled .bg-popover,
+.liquid-glass-enabled .card-responsive,
+.liquid-glass-enabled .bg-muted,
+.liquid-glass-enabled .bg-accent {
+  background-image: var(--glass-bg);
+  backdrop-filter: blur(var(--glass-blur)) saturate(1.12);
+  -webkit-backdrop-filter: blur(var(--glass-blur)) saturate(1.12);
+  border: 1px solid var(--glass-border);
+  box-shadow: var(--shadow-subtle);
+  transition: background-color var(--anim-medium) ease, box-shadow var(--anim-medium) ease, border-color var(--anim-medium) ease;
+}
+
+/* Dark variant adjustments */
+.liquid-glass-enabled.liquid-glass--dark .bg-card,
+.liquid-glass-enabled.liquid-glass--dark .bg-popover,
+.liquid-glass-enabled.liquid-glass--dark .card-responsive,
+.liquid-glass-enabled.liquid-glass--dark .bg-muted,
+.liquid-glass-enabled.liquid-glass--dark .bg-accent {
+  background-image: var(--glass-bg-dark);
+  border: 1px solid var(--glass-border-dark);
+  box-shadow: 0 8px 24px rgba(2, 6, 23, 0.6);
+}
+
+/* Make sure bottom navigation gets subtle glass when fixed */
+.liquid-glass-enabled .fixed.bottom-0.inset-x-0 {
+  /* specific to bottom nav */
+  background-clip: padding-box;
+}
+
+/* Utility glass class with fallback for browsers without backdrop-filter */
+.glass {
+  background: var(--glass-bg);
+  backdrop-filter: blur(var(--glass-blur)) saturate(1.12);
+  -webkit-backdrop-filter: blur(var(--glass-blur)) saturate(1.12);
+  border: 1px solid var(--glass-border);
+  box-shadow: var(--shadow-subtle);
+  border-radius: var(--radius-md);
+}
+
+.glass--sm {
+  border-radius: var(--radius-sm);
+}
+
+.glass--md {
+  border-radius: var(--radius-md);
+}
+
+.glass--lg {
+  border-radius: var(--radius-lg);
+}
+
+/* Fallback: if backdrop-filter is not supported, use semi-transparent fill */
+@supports not ((-webkit-backdrop-filter: blur(1px)) or (backdrop-filter: blur(1px))) {
+
+  .glass,
+  .liquid-glass,
+  .liquid-glass-enabled .bg-card,
+  .liquid-glass-enabled .bg-popover {
+    background: color-mix(in srgb, var(--color-surface) 85%, transparent);
+    background-color: rgba(255, 255, 255, 0.8);
+    border: 1px solid rgba(0, 0, 0, 0.06);
+    -webkit-backdrop-filter: none;
+    backdrop-filter: none;
+  }
+}

@@ -27,10 +27,12 @@ interface UserProgressStats {
   monthlyGoalsAchieved: number;
   totalGoalsAchieved: number;
   averageCompletion: number;
+  totalPenaltyXp?: number;
 }
 
 interface AchievementSystemProps {
-  onXpGained?: (xp: number) => void;
+   
+  onXpGained?: (_xp: number) => void;
 }
 
 // Sistema de XP por nível otimizado para progressão mais rápida
@@ -153,7 +155,8 @@ export function AchievementSystem({ onXpGained }: AchievementSystemProps) {
     perfectDays: 0,
     monthlyGoalsAchieved: 0,
     totalGoalsAchieved: 0,
-    averageCompletion: 0
+    averageCompletion: 0,
+    totalPenaltyXp: 0
   });
   const [selectedCategory, setSelectedCategory] = useState<string>('all');
   const [isLoading, setIsLoading] = useState(true);
@@ -395,7 +398,8 @@ export function AchievementSystem({ onXpGained }: AchievementSystemProps) {
   }, [userStats, getAllAchievements, onXpGained]);
 
   // Calcular nível atual e XP
-  const currentXP = achievements.filter(a => a.unlocked).reduce((sum, a) => sum + a.xp, 0);
+  const baseXP = achievements.filter(a => a.unlocked).reduce((sum, a) => sum + a.xp, 0);
+  const currentXP = Math.max(0, baseXP - (userStats.totalPenaltyXp || 0));
 
   const calculateCurrentLevel = () => {
     let level = 1;
@@ -608,7 +612,12 @@ export function AchievementSystem({ onXpGained }: AchievementSystemProps) {
         <motion.div className="bg-card rounded-xl p-3 text-center border border-border" initial={{ opacity: 0, y: 20 }} animate={{ opacity: 1, y: 0 }} transition={{ delay: 0.2 }}>
           <Star className="w-6 h-6 text-blue-500 mx-auto mb-1" />
           <p className="text-lg font-bold text-foreground">{currentXP}</p>
-          <p className="text-xs text-muted-foreground">XP Total</p>
+          <div className="flex flex-col items-center">
+            <p className="text-xs text-muted-foreground">XP Total</p>
+            {(userStats.totalPenaltyXp || 0) > 0 && (
+              <span className="text-[10px] text-red-500 font-medium">-{userStats.totalPenaltyXp} XP Pen.</span>
+            )}
+          </div>
         </motion.div>
 
         <motion.div className="bg-card rounded-xl p-3 text-center border border-border" initial={{ opacity: 0, y: 20 }} animate={{ opacity: 1, y: 0 }} transition={{ delay: 0.3 }}>

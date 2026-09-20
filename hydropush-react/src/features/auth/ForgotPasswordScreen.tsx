@@ -8,7 +8,8 @@ import { storageService } from '../../core/services/StorageService';
 interface ForgotPasswordScreenProps {
   onBack: () => void;
   error?: string | null;
-  onError?: (error: string | null) => void;
+   
+  onError?: (_error: string | null) => void;
 }
 
 export function ForgotPasswordScreen({ onBack, error, onError }: ForgotPasswordScreenProps) {
@@ -117,7 +118,7 @@ export function ForgotPasswordScreen({ onBack, error, onError }: ForgotPasswordS
   return (
     <div className="min-h-screen bg-background flex items-center justify-center p-6">
       <motion.div
-        className="w-full max-w-sm"
+        className="w-full max-w-md"
         initial={{ opacity: 0, y: 20 }}
         animate={{ opacity: 1, y: 0 }}
         transition={{ duration: 0.5 }}

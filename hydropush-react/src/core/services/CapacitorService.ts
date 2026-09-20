@@ -286,7 +286,7 @@ class CapacitorService {
                     ImpactStyle.Heavy;
 
             await Haptics.impact({ style: impactStyle });
-        } catch (error) {
+        } catch {
             // Silenciar erros de haptics
         }
     }

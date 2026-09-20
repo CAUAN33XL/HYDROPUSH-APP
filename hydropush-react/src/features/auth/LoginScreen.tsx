@@ -10,7 +10,8 @@ interface LoginScreenProps {
   onSwitchToRegister: () => void;
   onForgotPassword: () => void;
   error?: string;
-  onError: (error: string) => void;
+   
+  onError: (_error: string) => void;
 }
 
 export function LoginScreen({ 
@@ -52,15 +53,11 @@ export function LoginScreen({
     try {
       const success = await login(formData.email, formData.password);
       if (!success) {
-        const errorMsg = 'Email ou senha incorretos';
-        setLocalError(errorMsg);
-        onError(errorMsg);
+        setLocalError('Email ou senha incorretos');
       }
     } catch (err) {
-      const errorMsg = 'Erro inesperado ao fazer login';
       console.error('Erro no login:', err);
-      setLocalError(errorMsg);
-      onError(errorMsg);
+      setLocalError('Erro inesperado ao fazer login');
     }
   };
 
@@ -98,7 +95,7 @@ export function LoginScreen({
   return (
     <div className="min-h-screen bg-background flex items-center justify-center p-6">
       <motion.div
-        className="w-full max-w-sm"
+        className="w-full max-w-md"
         initial={{ opacity: 0, y: 20 }}
         animate={{ opacity: 1, y: 0 }}
         transition={{ duration: 0.5 }}

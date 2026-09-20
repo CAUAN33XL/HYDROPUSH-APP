@@ -149,7 +149,7 @@ export function AuthFlow() {
 
     if (isLoading) {
         return (
-            <div className="min-h-screen bg-background flex items-center justify-center w-full max-w-sm mx-auto">
+            <div className="min-h-screen bg-background flex items-center justify-center w-full mx-auto px-4">
                 <motion.div
                     className="flex flex-col items-center gap-4"
                     initial={{ opacity: 0 }}

@@ -15,7 +15,7 @@ export function OfflineIndicator() {
             exit={{ y: -100, opacity: 0 }}
             className="fixed top-0 left-0 right-0 z-50 bg-amber-500 text-white px-4 py-2 text-center text-sm font-medium shadow-lg"
         >
-            <div className="flex items-center justify-center gap-2 max-w-sm mx-auto">
+            <div className="flex items-center justify-center gap-2 max-w-lg mx-auto">
                 <WifiOff size={16} />
                 <span>Sem conexão • Modo offline</span>
             </div>

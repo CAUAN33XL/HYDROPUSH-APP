@@ -7,19 +7,25 @@ import pluginReactRefresh from "eslint-plugin-react-refresh";
 
 export default [
   {
-    ignores: ["dist/", "build/", ".eslintrc.cjs", "node_modules/", "hydropush-capacitor/android/"],
+    ignores: ["**/dist/", "**/build/", "**/.eslintrc.cjs", "**/.eslintrc.js", "**/node_modules/", "hydropush-capacitor/android/"],
   },
   js.configs.recommended,
   {
-    files: ["hydropush-react/**/*. {ts,tsx}"],
+    files: ["hydropush-react/**/*.{ts,tsx}"],
     languageOptions: {
       parser: typescriptParser,
+      globals: {
+        ...globals.browser,
+        ...globals.node,
+        ...globals.es2020,
+      },
     },
     plugins: {
       "@typescript-eslint": typescriptPlugin,
     },
     rules: {
       ...typescriptPlugin.configs.recommended.rules,
+      "@typescript-eslint/no-explicit-any": "off",
     },
   },
   {
@@ -31,6 +37,7 @@ export default [
     languageOptions: {
       globals: {
         ...globals.browser,
+        ...globals.node,
         ...globals.es2020,
       },
       parser: typescriptParser,

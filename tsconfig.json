@@ -11,7 +11,9 @@
       "DOM",
       "DOM.Iterable"
     ],
-    "types": ["node"],
+    "types": [
+      "node"
+    ],
     "allowSyntheticDefaultImports": true,
     "esModuleInterop": true,
     "strict": true,
@@ -21,18 +23,20 @@
     "jsx": "react-jsx",
     "baseUrl": ".",
     "paths": {
-      "@/*": ["hydropush-react/src/*"]
+      "@/*": [
+        "src/*"
+      ]
     }
   },
   "include": [
-    "hydropush-react/src/**/*",
+    "src/**/*",
     "vite.config.ts",
-    "hydropush-capacitor/capacitor.config.ts"
+    "capacitor.config.ts"
   ],
   "exclude": [
     "node_modules",
     "dist",
     "build",
-    "hydropush-capacitor/android"
+    "android"
   ]
 }

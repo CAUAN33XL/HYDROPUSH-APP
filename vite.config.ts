@@ -7,7 +7,7 @@ const __filename = fileURLToPath(import.meta.url);
 const __dirname = path.dirname(__filename);
 
 export default defineConfig({
-  root: 'hydropush-react',
+  root: '.',
   base: '/', 
   plugins: [react()],
   resolve: {
@@ -25,7 +25,7 @@ export default defineConfig({
       'embla-carousel-react@8.6.0': 'embla-carousel-react',
       'cmdk@1.1.1': 'cmdk',
       'class-variance-authority@0.7.1': 'class-variance-authority',
-      '@': path.resolve(__dirname, './hydropush-react/src'),
+      '@': path.resolve(__dirname, './src'),
     },
   },
   build: {

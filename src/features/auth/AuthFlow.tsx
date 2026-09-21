@@ -3,7 +3,7 @@ import { motion } from 'motion/react';
 import { useAuth, SetupData } from '../../contexts/AuthContext';
 import { storageService } from '../../core/services/StorageService';
 import { criticalFlagsService } from '../../core/services/CriticalFlagsService';
-import { capacitorService } from '../../core/services/CapacitorService';
+
 import { LoginScreen } from './LoginScreen';
 import { RegisterScreen } from './RegisterScreen';
 import { OnboardingScreen } from './OnboardingScreen';

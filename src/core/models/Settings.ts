@@ -25,5 +25,6 @@ export interface AppSettings {
     backupFrequency: 'daily' | 'weekly' | 'monthly' | 'never';
     lastRatingPrompt?: string | null;
     lastActiveView?: string | null; // ✅ Persiste qual tela/view o usuário estava
+    godMode?: boolean; // ✅ Modo Deus: desbloqueia tudo (conquistas e minigames)
 }
 

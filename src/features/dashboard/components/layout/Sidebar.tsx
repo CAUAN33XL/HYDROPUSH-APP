@@ -1,7 +1,7 @@
 import React from 'react';
 import { Droplets, LucideIcon } from 'lucide-react';
 
-export type TabType = 'home' | 'stats' | 'history' | 'profile' | 'settings';
+export type TabType = 'home' | 'stats' | 'history' | 'profile' | 'settings' | 'minigames' | 'metaverse';
 
 export interface NavigationItem {
     id: TabType;

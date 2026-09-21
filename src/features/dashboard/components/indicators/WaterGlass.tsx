@@ -70,9 +70,9 @@ export function WaterGlass({ currentAmount, dailyGoal, size = 'md', animated = t
 
     requestAnimationFrame(animateValue);
 
-    // Animar o preenchimento do copo
+    // Animar o preenchimento do copo (usando y para preencher de baixo para cima perfeitamente)
     controls.start({
-      height: `${fillHeight}%`,
+      y: height * 0.95 - (height * 0.85 * Math.min(fillHeight / 85, 1)),
       transition: {
         duration: duration,
         ease: [0.22, 1, 0.36, 1]
@@ -80,7 +80,7 @@ export function WaterGlass({ currentAmount, dailyGoal, size = 'md', animated = t
     });
 
     setPreviousAmount(currentAmount);
-  }, [currentAmount, animated, controls, fillHeight, displayAmount, previousAmount, reducedMotion]);
+  }, [currentAmount, animated, controls, fillHeight, displayAmount, previousAmount, reducedMotion, height]);
 
   return (
     <div className="relative flex flex-col items-center">
@@ -159,39 +159,42 @@ export function WaterGlass({ currentAmount, dailyGoal, size = 'md', animated = t
 
           {/* Preenchimento de água */}
           <g mask="url(#glassMask)">
-            <motion.rect
-              x={width * 0.2 + strokeWidth/2}
-              y={height * 0.9 - (height * 0.85 * Math.min(fillHeight / 85, 1))} // Garantir que preencha completamente
-              width={width * 0.6 - strokeWidth}
-              initial={{ height: 0 }}
-              animate={reducedMotion ? { height: `${Math.min(fillHeight, 85) * 0.85}%` } : controls}
-              fill={isOverflowing ? "url(#overflowGradient)" : "url(#waterGradient)"}
-              filter={isOverflowing ? "url(#overflowGlow)" : "url(#waterShine)"}
-            />
-            
-            {/* Ondas da água (apenas se houver água) */}
-            {fillHeight > 0 && !reducedMotion && (
-              <motion.path
-                d={`M ${width * 0.2} ${height * 0.9 - (height * 0.85 * Math.min(fillHeight / 85, 1))}
-                   Q ${width * 0.3} ${height * 0.9 - (height * 0.85 * Math.min(fillHeight / 85, 1)) - 3}
-                   ${width * 0.4} ${height * 0.9 - (height * 0.85 * Math.min(fillHeight / 85, 1))}
-                   T ${width * 0.6} ${height * 0.9 - (height * 0.85 * Math.min(fillHeight / 85, 1))}
-                   T ${width * 0.8} ${height * 0.9 - (height * 0.85 * Math.min(fillHeight / 85, 1))}`}
-                fill="none"
-                stroke={isOverflowing ? "#FFFFFF" : "#ffffff"}
-                strokeWidth="2"
-                opacity={isOverflowing ? "0.8" : "0.6"}
-                animate={animated ? {
-                  pathLength: [0, 1, 0],
-                  opacity: isOverflowing ? [0.5, 0.8, 0.5] : [0.3, 0.6, 0.3]
-                } : {}}
-                transition={{
-                  duration: isOverflowing ? 1.5 : 2,
-                  repeat: Infinity,
-                  ease: "easeInOut"
-                }}
+            <motion.g
+              initial={{ y: height * 0.95 }}
+              animate={reducedMotion ? { y: height * 0.95 - (height * 0.85 * Math.min(fillHeight / 85, 1)) } : controls}
+            >
+              <rect
+                x={0}
+                y={0}
+                width={width}
+                height={height}
+                fill={isOverflowing ? "url(#overflowGradient)" : "url(#waterGradient)"}
+                filter={isOverflowing ? "url(#overflowGlow)" : "url(#waterShine)"}
               />
-            )}
+              
+              {/* Ondas da água (apenas se houver água) */}
+              {fillHeight > 0 && !reducedMotion && (
+                <motion.path
+                  d={`M ${width * 0.1} 0
+                     Q ${width * 0.3} -4 ${width * 0.4} 0
+                     T ${width * 0.6} 0
+                     T ${width * 0.9} 0`}
+                  fill="none"
+                  stroke={isOverflowing ? "#FFFFFF" : "#ffffff"}
+                  strokeWidth="2"
+                  opacity={isOverflowing ? "0.8" : "0.6"}
+                  animate={animated ? {
+                    pathLength: [0, 1, 0],
+                    opacity: isOverflowing ? [0.5, 0.8, 0.5] : [0.3, 0.6, 0.3]
+                  } : {}}
+                  transition={{
+                    duration: isOverflowing ? 1.5 : 2,
+                    repeat: Infinity,
+                    ease: "easeInOut"
+                  }}
+                />
+              )}
+            </motion.g>
 
             {/* Efeito de estouro/overflow visual */}
             {isOverflowing && fillHeight >= 85 && !reducedMotion && (
@@ -255,21 +258,19 @@ export function WaterGlass({ currentAmount, dailyGoal, size = 'md', animated = t
         {/* Informações de progresso */}
         <div className="absolute inset-0 flex flex-col items-center justify-center pointer-events-none">
           <motion.div 
-            className="text-center"
+            className="text-center drop-shadow-md mix-blend-hard-light"
             key={displayAmount}
             initial={animated && !reducedMotion ? { scale: 1.2, opacity: 0.5 } : {}}
             animate={{ scale: 1, opacity: 1 }}
             transition={{ duration: 0.3, ease: "easeOut" }}
           >
-            <div className={`font-bold ${
-              isOverflowing ? 'text-cyan-400' : 'text-[#1E88E5]'
-            } ${
-              size === 'lg' ? 'text-3xl' : size === 'md' ? 'text-2xl' : 'text-xl'
+            <div className={`font-bold text-white drop-shadow-[0_2px_2px_rgba(0,0,0,0.5)] ${
+              size === 'lg' ? 'text-4xl' : size === 'md' ? 'text-3xl' : 'text-2xl'
             }`}>
               {Math.round((currentAmount / dailyGoal) * 100)}%
             </div>
-            <div className={`text-gray-600 dark:text-gray-400 ${
-              size === 'lg' ? 'text-base' : size === 'md' ? 'text-sm' : 'text-xs'
+            <div className={`text-white drop-shadow-[0_1px_1px_rgba(0,0,0,0.5)] font-semibold mt-1 ${
+              size === 'lg' ? 'text-lg' : size === 'md' ? 'text-base' : 'text-sm'
             }`}>
               {displayAmount}ml
             </div>

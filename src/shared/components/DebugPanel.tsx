@@ -1,9 +1,8 @@
 import React, { useState, useEffect } from 'react';
-import { X, Trash2, RefreshCw, Database } from 'lucide-react';
+import { X, Trash2, RefreshCw, Database, Sparkles } from 'lucide-react';
 import { motion, AnimatePresence } from 'motion/react';
 import { Button } from './ui/button';
 import { storageService } from '../../core/services/StorageService';
-import { Capacitor } from '@capacitor/core';
 
 interface DebugPanelProps {
     isOpen: boolean;
@@ -42,6 +41,13 @@ export function DebugPanel({ isOpen, onClose }: DebugPanelProps) {
                 firstTimeUser: true
             });
             alert('Onboarding resetado! Recarregue a página.');
+        }
+    };
+
+    const activateGodMode = () => {
+        if (confirm('Ativar Modo Deus? (Vai injetar 35 dias de histórico perfeito, desbloquear todas as conquistas e dar acesso a TODOS os jogos do Fliperama)')) {
+            (storageService as any).enableGodMode();
+            alert('Modo Deus ativado! 🌟 Recarregue a página para ver os efeitos.');
         }
     };
 
@@ -142,6 +148,14 @@ export function DebugPanel({ isOpen, onClose }: DebugPanelProps) {
                                             <Trash2 size={16} className="mr-2" />
                                             Limpar Todos os Dados
                                         </Button>
+                                        <Button
+                                            onClick={activateGodMode}
+                                            variant="outline"
+                                            className="w-full justify-start text-indigo-600 border-indigo-300 hover:bg-indigo-50 dark:hover:bg-indigo-900/20"
+                                        >
+                                            <Sparkles size={16} className="mr-2" />
+                                            Ativar Modo Deus (Desbloquear Tudo)
+                                        </Button>
                                     </div>
                                 </div>
                             </div>
@@ -158,11 +172,7 @@ export function DebugPanel({ isOpen, onClose }: DebugPanelProps) {
                                     <div className="bg-muted/50 rounded-lg p-4 space-y-2 text-sm font-mono">
                                         <div className="flex justify-between">
                                             <span className="text-muted-foreground">Plataforma:</span>
-                                            <span>{Capacitor.getPlatform()}</span>
-                                        </div>
-                                        <div className="flex justify-between">
-                                            <span className="text-muted-foreground">Nativo:</span>
-                                            <span>{Capacitor.isNativePlatform() ? 'Sim' : 'Não'}</span>
+                                            <span>Web (PWA)</span>
                                         </div>
                                         <div className="flex justify-between">
                                             <span className="text-muted-foreground">User Agent:</span>

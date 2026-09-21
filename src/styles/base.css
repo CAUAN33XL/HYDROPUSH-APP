@@ -38,17 +38,17 @@
   html.dark *,
   .dark,
   .dark * {
-    --background: #0A0E13 !important;
-    --foreground: #F8FAFC !important;
-    --card: #0E1318 !important;
-    --card-foreground: #F8FAFC !important;
-    --popover: #0E1318 !important;
-    --popover-foreground: #F8FAFC !important;
-    --muted: #161B21 !important;
+    --background: #020408 !important;
+    --foreground: #FFFFFF !important;
+    --card: #060913 !important;
+    --card-foreground: #FFFFFF !important;
+    --popover: #060913 !important;
+    --popover-foreground: #FFFFFF !important;
+    --muted: #0F172A !important;
     --muted-foreground: #CBD5E1 !important;
-    --border: rgba(59, 130, 246, 0.2) !important;
-    --input-background: #1E293B !important;
-    --switch-background: #475569 !important;
+    --border: rgba(59, 130, 246, 0.25) !important;
+    --input-background: #0F172A !important;
+    --switch-background: #334155 !important;
   }
 
   /* Otimizações para mobile */
@@ -84,9 +84,8 @@
     color: #0F1724 !important;
   }
 
-  /* Forçar aplicação imediata do tema escuro no body */
   html.dark body {
-    background-color: #0A0E13 !important;
+    background-color: #020408 !important;
     color: #F8FAFC !important;
   }
 

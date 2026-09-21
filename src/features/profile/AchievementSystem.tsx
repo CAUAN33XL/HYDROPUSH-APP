@@ -242,7 +242,7 @@ export function AchievementSystem({ onXpGained }: AchievementSystemProps) {
     {
       id: 'silver_streak',
       title: 'Sequência Prata',
-      description: 'Complete 7 dias seguidos',
+      description: 'Complete 7 dias seguidos (🎮 Desbloqueia Flappy Drop)',
       icon: TrendingUp,
       xp: 150,
       trophy: 'silver',
@@ -309,7 +309,7 @@ export function AchievementSystem({ onXpGained }: AchievementSystemProps) {
     {
       id: 'month_champion',
       title: 'Campeão do Mês',
-      description: 'Complete todas as metas de um mês',
+      description: 'Complete todas as metas de um mês (🎮 Desbloqueia Water Pong)',
       icon: Calendar,
       xp: 400,
       trophy: 'emerald',

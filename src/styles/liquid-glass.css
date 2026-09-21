@@ -35,11 +35,11 @@
 }
 
 /* Dark variant adjustments */
-.liquid-glass-enabled.liquid-glass--dark .bg-card,
-.liquid-glass-enabled.liquid-glass--dark .bg-popover,
-.liquid-glass-enabled.liquid-glass--dark .card-responsive,
-.liquid-glass-enabled.liquid-glass--dark .bg-muted,
-.liquid-glass-enabled.liquid-glass--dark .bg-accent {
+.liquid-glass-enabled.dark .bg-card,
+.liquid-glass-enabled.dark .bg-popover,
+.liquid-glass-enabled.dark .card-responsive,
+.liquid-glass-enabled.dark .bg-muted,
+.liquid-glass-enabled.dark .bg-accent {
   background-image: var(--glass-bg-dark);
   border: 1px solid var(--glass-border-dark);
   box-shadow: 0 8px 24px rgba(2, 6, 23, 0.6);

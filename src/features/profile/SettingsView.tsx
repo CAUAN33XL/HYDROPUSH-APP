@@ -12,7 +12,8 @@ import {
   AlertCircle,
   LogOut,
   Trash2,
-  Sun
+  Sun,
+  Map
 } from 'lucide-react';
 import { Switch } from '../../shared/components/ui/switch';
 import { Button } from '../../shared/components/ui/button';
@@ -30,9 +31,10 @@ const DebugPanel = React.lazy(() => import('../../shared/components/DebugPanel')
 
 interface SettingsViewProps {
   className?: string;
+  onNavigate?: (tab: string) => void;
 }
 
-export function SettingsView({ className }: SettingsViewProps) {
+export function SettingsView({ className, onNavigate }: SettingsViewProps) {
   const { user, isGuest, logout } = useAuth();
   const { theme, setTheme } = useTheme();
 
@@ -179,6 +181,37 @@ export function SettingsView({ className }: SettingsViewProps) {
             </div>
             <ChevronRight size={16} className="text-muted-foreground" />
           </motion.button>
+        </div>
+      </motion.div>
+
+      {/* Experimental / Metaverso */}
+      <motion.div
+        className="bg-card rounded-2xl shadow-sm border border-border mb-6"
+        initial={{ opacity: 0, y: 20 }}
+        animate={{ opacity: 1, y: 0 }}
+        transition={{ duration: 0.3, delay: 0.35 }}
+      >
+        <div className="p-4 border-b border-border">
+          <div className="flex items-center gap-2">
+            <div className="w-8 h-8 bg-purple-100 dark:bg-purple-900/30 rounded-full flex items-center justify-center">
+              <Map size={16} className="text-purple-600 dark:text-purple-400" />
+            </div>
+            <h3 className="font-semibold text-foreground">Experimental</h3>
+          </div>
+        </div>
+        <div className="divide-y divide-border">
+          <button
+            onClick={() => onNavigate && onNavigate('metaverse')}
+            className="w-full flex items-center justify-between p-4 hover:bg-muted/50 transition-colors"
+          >
+            <div className="flex items-center gap-3">
+              <div>
+                <p className="text-sm font-medium text-foreground text-left">Mundo 3D (Metaverso)</p>
+                <p className="text-xs text-muted-foreground text-left">Explore o Hydropush em 3D</p>
+              </div>
+            </div>
+            <ChevronRight size={18} className="text-muted-foreground" />
+          </button>
         </div>
       </motion.div>
 

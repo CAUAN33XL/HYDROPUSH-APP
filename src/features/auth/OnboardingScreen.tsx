@@ -1,12 +1,10 @@
 import React, { useState } from 'react';
-import { Bell, Moon, Sun, Check, Droplets } from 'lucide-react';
+import { Moon, Sun, Check, Droplets } from 'lucide-react';
 import { motion } from 'motion/react';
 import { Button } from '../../shared/components/ui/button';
 import { useTheme } from '../../contexts/ThemeContext';
 import { storageService } from '../../core/services/StorageService';
 import { criticalFlagsService } from '../../core/services/CriticalFlagsService';
-import { capacitorService } from '../../core/services/CapacitorService';
-
 interface OnboardingScreenProps {
   onComplete: () => void;
   error?: string;
@@ -15,41 +13,12 @@ interface OnboardingScreenProps {
 export function OnboardingScreen({ onComplete, error: externalError }: OnboardingScreenProps) {
   const { theme, setTheme } = useTheme();
   const [step, setStep] = useState(1);
-  const [notifications, setNotifications] = useState(false); // ✅ Sempre começa false - só muda com ação do usuário
 
   const [isLoading, setIsLoading] = useState(false);
   const [error, setError] = useState<string | null>(null);
 
   // ✅ Removido o useEffect que carregava do storage - isso causava o bug!
 
-  const handleNotificationPermission = async () => {
-    try {
-      setIsLoading(true);
-      setError(null);
-
-      // Tentar permissão nativa via CapacitorService
-      const granted = await capacitorService.requestPushPermissions();
-
-      // Fallback para API web se não for nativo ou se falhar
-      if (!granted && !capacitorService.isNativePlatform() && 'Notification' in window) {
-        const permission = await Notification.requestPermission();
-        setNotifications(permission === 'granted');
-      } else {
-        setNotifications(granted);
-      }
-
-      // Salvar preferência no storageService
-      storageService.saveUserSettings({
-        notifications: granted
-      });
-
-    } catch (error) {
-      console.error('Erro ao solicitar permissão de notificação:', error);
-      setError('Não foi possível configurar notificações.');
-    } finally {
-      setIsLoading(false);
-    }
-  };
 
   const handleThemeChange = (newTheme: 'light' | 'dark') => {
     try {
@@ -280,118 +249,6 @@ export function OnboardingScreen({ onComplete, error: externalError }: Onboardin
               initial={{ opacity: 0, y: 10 }}
               animate={{ opacity: 1, y: 0 }}
               transition={{ delay: 0.6 }}
-            >
-              <Button
-                onClick={() => setStep(3)}
-                className="w-full bg-primary hover:bg-primary/90"
-                disabled={isLoading}
-              >
-                Continuar
-              </Button>
-            </motion.div>
-          </>
-        )}
-
-        {step === 3 && (
-          <>
-            {/* Notifications */}
-            <div className="mb-8">
-              <motion.div
-                initial={{ scale: 0 }}
-                animate={{ scale: 1 }}
-                transition={{ delay: 0.2, type: "spring" }}
-                className="w-16 h-16 sm:w-20 sm:h-20 bg-gradient-to-br from-green-400 to-green-600 rounded-full flex items-center justify-center mx-auto mb-6"
-              >
-                <Bell size={32} className="text-white" />
-              </motion.div>
-              <motion.h1
-                initial={{ opacity: 0, y: 10 }}
-                animate={{ opacity: 1, y: 0 }}
-                transition={{ delay: 0.3 }}
-                className="text-2xl font-bold text-foreground mb-2"
-              >
-                Lembretes de hidratação
-              </motion.h1>
-              <motion.p
-                initial={{ opacity: 0, y: 10 }}
-                animate={{ opacity: 1, y: 0 }}
-                transition={{ delay: 0.4 }}
-                className="text-muted-foreground"
-              >
-                Receba notificações para não esquecer de beber água
-              </motion.p>
-            </div>
-
-            {/* Notification Setting */}
-            <motion.div
-              initial={{ opacity: 0, y: 20 }}
-              animate={{ opacity: 1, y: 0 }}
-              transition={{ delay: 0.5 }}
-              className="bg-card border border-border rounded-2xl p-4 sm:p-6 mb-8"
-            >
-              <div className="mb-4">
-                <div className="font-medium text-foreground">
-                  Ativar Notificações
-                </div>
-                <div className="text-sm text-muted-foreground">
-                  Lembretes personalizados ao longo do dia
-                </div>
-              </div>
-
-              <Button
-                onClick={handleNotificationPermission}
-                className="w-full bg-primary hover:bg-primary/90 mb-4"
-                disabled={isLoading || notifications}
-              >
-                {isLoading ? 'Solicitando...' : 'Permitir Notificações'}
-              </Button>
-
-              {notifications && (
-                <motion.div
-                  initial={{ opacity: 0, scale: 0.9 }}
-                  animate={{ opacity: 1, scale: 1 }}
-                  className="bg-green-50 dark:bg-green-900/20 border border-green-200 dark:border-green-800 rounded-lg p-3"
-                >
-                  <div className="flex items-center gap-2 text-green-700 dark:text-green-300">
-                    <Check size={16} />
-                    <span className="text-sm font-medium">
-                      Notificações ativadas!
-                    </span>
-                  </div>
-                  <p className="text-xs text-green-600 dark:text-green-400 mt-1">
-                    Você receberá lembretes gentis para se manter hidratado
-                  </p>
-                </motion.div>
-              )}
-            </motion.div>
-
-            {/* Sample Notifications */}
-            <motion.div
-              initial={{ opacity: 0, y: 20 }}
-              animate={{ opacity: 1, y: 0 }}
-              transition={{ delay: 0.6 }}
-              className="text-left mb-8"
-            >
-              <p className="text-sm text-muted-foreground mb-3">
-                Exemplos de lembretes que você receberá:
-              </p>
-              <div className="space-y-2">
-                <div className="bg-muted/50 rounded-lg p-3 text-sm">
-                  💧 "Hora de beber água — seu corpo agradece!"
-                </div>
-                <div className="bg-muted/50 rounded-lg p-3 text-sm">
-                  🎯 "Que tal +200ml agora? Você está indo bem!"
-                </div>
-                <div className="bg-muted/50 rounded-lg p-3 text-sm">
-                  🎉 "Meta alcançada! Parabéns pela consistência!"
-                </div>
-              </div>
-            </motion.div>
-
-            <motion.div
-              initial={{ opacity: 0, y: 10 }}
-              animate={{ opacity: 1, y: 0 }}
-              transition={{ delay: 0.7 }}
             >
               <Button
                 onClick={handleComplete}

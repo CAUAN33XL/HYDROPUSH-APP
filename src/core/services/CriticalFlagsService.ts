@@ -1,16 +1,12 @@
-import { Preferences } from '@capacitor/preferences';
-
 /**
  * CriticalFlagsService
  * 
- * Gerencia flags críticos do app usando APENAS Capacitor Preferences como source of truth.
- * Estes flags são GARANTIDOS persistir entre sessões do app, mesmo após force stop.
+ * Gerencia flags críticos do app usando APENAS localStorage como source of truth.
+ * Estes flags são GARANTIDOS persistir entre sessões do app.
  * 
- * Por que usar este serviço em vez de StorageService:
- * - Preferences é mais confiável que localStorage (não é limpo pelo sistema)
+ * Por que usar este serviço:
  * - API simples e direta, sem cache volátil
- * - Inicialização rápida (~50ms)
- * - Sem race conditions com DatabaseService
+ * - Inicialização rápida (~0ms)
  * - Source of truth único e confiável
  */
 class CriticalFlagsService {
@@ -22,30 +18,15 @@ class CriticalFlagsService {
     private cache = new Map<string, boolean>();
 
     /**
-     * Retry operation with exponential backoff
+     * Helper para lidar com erros de parsing
      */
-    private async retryOperation<T>(
-        operation: () => Promise<T>,
-        operationName: string,
-        maxRetries = this.MAX_RETRIES
-    ): Promise<T> {
-        for (let attempt = 0; attempt < maxRetries; attempt++) {
-            try {
-                return await operation();
-            } catch (error) {
-                const isLastAttempt = attempt === maxRetries - 1;
-
-                if (isLastAttempt) {
-                    console.error(`[CriticalFlags] ❌ ${operationName} failed after ${maxRetries} attempts:`, error);
-                    throw error;
-                }
-
-                const backoffMs = Math.pow(2, attempt) * 100; // 100ms, 200ms, 400ms
-                console.warn(`[CriticalFlags] ⚠️ ${operationName} attempt ${attempt + 1} failed, retrying in ${backoffMs}ms...`);
-                await new Promise(resolve => setTimeout(resolve, backoffMs));
-            }
+    private parseJSON(value: string | null): any {
+        if (!value) return null;
+        try {
+            return JSON.parse(value);
+        } catch {
+            return value;
         }
-        throw new Error(`${operationName} failed after ${maxRetries} retries`);
     }
 
     /**
@@ -105,11 +86,8 @@ class CriticalFlagsService {
 
             const fullKey = `${this.KEY_PREFIX}${key}`;
 
-            // Retry read operation
-            const { value } = await this.retryOperation(
-                () => Preferences.get({ key: fullKey }),
-                `Read ${key}`
-            );
+            // Ler direto do localStorage
+            const value = localStorage.getItem(fullKey);
 
             // Validar e parsear
             const boolValue = value === 'true';
@@ -138,14 +116,8 @@ class CriticalFlagsService {
 
             const fullKey = `${this.KEY_PREFIX}${key}`;
 
-            // Retry write operation
-            await this.retryOperation(
-                () => Preferences.set({
-                    key: fullKey,
-                    value: value.toString()
-                }),
-                `Write ${key}`
-            );
+            // Salvar no localStorage
+            localStorage.setItem(fullKey, value.toString());
 
             // Atualizar cache APÓS sucesso
             this.cache.set(key, value);

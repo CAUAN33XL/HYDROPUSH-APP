@@ -8,7 +8,6 @@ import { ColorTheme, ThemingSettings } from '../models/Theme';
 import { AuthData } from '../models/Auth';
 import { Tip } from '../models/Tip';
 import { FeedbackData } from '../models/Feedback';
-import { Preferences } from '@capacitor/preferences';
 
 export type {
   HydrationEntry, HydrationDay,
@@ -214,21 +213,15 @@ class StorageService {
     if (this.initialized) return;
 
     try {
-      console.log('[StorageService] 🔄 Initializing with Capacitor Preferences...');
+      console.log('[StorageService] 🔄 Initializing with localStorage...');
 
-      // 1. Carregar TODAS as chaves do Preferences com retry
-      const { keys } = await this.retryOperation(
-        () => Preferences.keys(),
-        'Load keys'
-      );
+      // 1. Carregar TODAS as chaves do localStorage com retry (não é necessário retry para localStorage síncrono, mas manteremos o pattern)
+      const keys = Object.keys(localStorage);
 
       // 2. Carregar valores em paralelo com validação
       const loadPromises = keys.map(async (key) => {
         try {
-          const { value } = await this.retryOperation(
-            () => Preferences.get({ key }),
-            `Load ${key}`
-          );
+          const value = localStorage.getItem(key);
 
           if (value) {
             // Detectar corrupção
@@ -361,11 +354,8 @@ class StorageService {
 
         const stringValue = JSON.stringify(value);
 
-        // Retry write operation
-        await this.retryOperation(
-          () => Preferences.set({ key, value: stringValue }),
-          `Write ${key}`
-        );
+        // Salvar no localStorage (síncrono)
+        localStorage.setItem(key, stringValue);
 
         // Success - remove from failed writes if it was there
         this.failedWrites.delete(key);
@@ -402,18 +392,63 @@ class StorageService {
   private async removeItem(key: string): Promise<void> {
     this.memoryCache.delete(key);
     this.dispatchStorageChange(key, null);
-    await Preferences.remove({ key });
+    localStorage.removeItem(key);
   }
 
   async clearAllData(): Promise<void> {
     this.memoryCache.clear();
     try {
-      await Preferences.clear();
+      localStorage.clear();
       this.dispatchStorageChange('all', null);
       console.log('[StorageService] 🧹 All data cleared');
     } catch (error) {
       console.error('[StorageService] Error clearing data:', error);
     }
+  }
+
+  // ===== GOD MODE =====
+  enableGodMode(): void {
+    const history: HydrationDay[] = [];
+    const today = new Date();
+
+    // Persistir flag do Modo Deus
+    this.saveAppSettings({ godMode: true });
+    
+    // Generate 35 perfect days to unlock 30-day streak achievements and Minigames
+    for (let i = 0; i <= 35; i++) {
+      const date = new Date(today);
+      date.setDate(date.getDate() - i);
+      const dateStr = date.toLocaleDateString('en-CA');
+      
+      history.push({
+        date: dateStr,
+        amount: 2500,
+        goal: 2000,
+        entries: [{
+          id: `god-mode-${i}`,
+          amount: 2500,
+          timestamp: date.toISOString(),
+          drinkType: 'water'
+        }]
+      });
+    }
+    
+    this.saveHydrationHistory(history);
+    
+    // Reset any penalties
+    const stats = this.getItem<UserStats>(STORAGE_KEYS.USER_STATS);
+    if (stats) {
+      stats.totalPenaltyXp = 0;
+      this.setItem(STORAGE_KEYS.USER_STATS, stats);
+    }
+    
+    this.dispatchStorageChange('all', null);
+    console.log('🌟 GOD MODE ACTIVATED: 35 perfect days injected!');
+  }
+
+  // Verifica se o Modo Deus está ativo (desbloqueia todos os minigames)
+  isGodModeEnabled(): boolean {
+    return this.loadAppSettings().godMode === true;
   }
 
   // Permite que partes da aplicação escutem mudanças locais no storage
@@ -598,10 +633,10 @@ class StorageService {
   // Helper to load initial preferences (Sync with CriticalFlags)
   private async loadInitialPreferences(): Promise<void> {
     try {
-      // Carregar do Capacitor Preferences (assíncrono, fonte da verdade persistente)
-      const { value: prefCompletedOnboarding } = await Preferences.get({ key: 'critical_flag_onboarding_completed' });
-      const { value: prefCompletedInitialSetup } = await Preferences.get({ key: 'critical_flag_initial_setup_completed' });
-      const { value: prefNotificationOnboardingComplete } = await Preferences.get({ key: 'critical_flag_notification_onboarding_completed' });
+      // Carregar do localStorage (fonte da verdade persistente)
+      const prefCompletedOnboarding = localStorage.getItem('critical_flag_onboarding_completed');
+      const prefCompletedInitialSetup = localStorage.getItem('critical_flag_initial_setup_completed');
+      const prefNotificationOnboardingComplete = localStorage.getItem('critical_flag_notification_onboarding_completed');
 
       const currentSettings = this.loadAppSettings();
       const newSettings = { ...currentSettings };
@@ -1086,6 +1121,35 @@ class StorageService {
     
     return { penaltyApplied: penaltyXp, missedDays: missedDays.length };
   }
+
+  // Abater dívida de penalidade (acionado quando bate a meta)
+  reduceDailyPenalty(amount: number = 100): number {
+    const stats = this.loadUserStats();
+    
+    if (!stats.totalPenaltyXp || stats.totalPenaltyXp <= 0) {
+      return 0; // Nenhuma dívida
+    }
+
+    const previousPenalty = stats.totalPenaltyXp;
+    stats.totalPenaltyXp = Math.max(0, stats.totalPenaltyXp - amount);
+    
+    const reducedAmount = previousPenalty - stats.totalPenaltyXp;
+    
+    this.saveUserStats(stats);
+    
+    console.log(`[Gamification] Dívida reduzida em ${reducedAmount} XP. Dívida restante: ${stats.totalPenaltyXp} XP`);
+    
+    // Dispara evento para a UI
+    window.dispatchEvent(new CustomEvent('penalty:reduced', { 
+      detail: { 
+        reducedAmount, 
+        remainingPenalty: stats.totalPenaltyXp 
+      } 
+    }));
+    
+    return reducedAmount;
+  }
+  
   // Estimar uso de armazenamento
   estimateStorageUsage(): { bytes: number; items: number } {
     let bytes = 0;

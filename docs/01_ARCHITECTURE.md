@@ -1,17 +1,17 @@
-# 01 - Arquitetura Geral do Sistema (Single Codebase)
+# 01 - Arquitetura Geral do Sistema (PWA Puro)
 
-O Hydropush adota uma arquitetura do tipo **Single Codebase** (Código-Fonte Único). Isso significa que, a partir da pasta `src/`, geramos tanto a aplicação Web (PWA) quanto o empacotamento nativo (Android).
+O Hydropush adotou a iniciativa radical de expurgar a complexidade nativa. O aplicativo é agora um **Progressive Web App (PWA) 100% Web**.
 
 ## A Filosofia
 
-Antigamente, o projeto era um monorepo (separando `hydropush-react` e `hydropush-capacitor`). Isso trazia "gordura" e complexidade para a manutenção.
+Antigamente, o projeto tentou ser um aplicativo nativo usando o Capacitor, o que trazia "gordura", conflitos de dependências, e complexidade para a manutenção dos builds e da distribuição nas lojas de aplicativos.
 
-Hoje, a arquitetura é enxuta:
+Hoje, a arquitetura é enxuta e liberta da burocracia das lojas (Google Play/App Store):
 - **`src/`**: O coração do projeto (React, Zustand, Tailwind). Tudo que envolve UI e lógica vive aqui.
-- **`build/`**: O output otimizado e minificado gerado pelo Vite. Esta pasta é servida para os usuários web.
-- **`android/`**: Uma casca (Thin Client) gerada pelo Capacitor que não compila os arquivos do `build/`, mas sim aponta o WebView nativo diretamente para a URL de produção (Vercel).
+- **Persistência de Dados**: Migrada do banco de dados nativo para a API `window.localStorage` da Web.
+- **`build/`**: O output otimizado e minificado gerado pelo Vite. Esta pasta é servida para os usuários web através da Vercel.
 
 ## Benefícios Desta Arquitetura
-1. **Zero Duplicação:** As rotas, os estilos e a lógica de gamificação rodam da mesma forma em qualquer plataforma.
-2. **Ciclo de Desenvolvimento Rápido:** Você coda no navegador (`npm run dev`) e confia que o Android vai espelhar exatamente aquele comportamento.
-3. **Escalabilidade Horizontal:** Adicionar um módulo novo (ex: "Store" ou "Ranking") só requer criar os componentes em `src/features/` e linká-los no React Router.
+1. **Zero Burocracia:** O App é distribuído pela web (via URL) e pode ser instalado adicionando à tela inicial (PWA). Zero tempo de build no Android Studio.
+2. **Ciclo de Desenvolvimento Imediato:** Você coda no navegador (`npm run dev`) e empurra para a Vercel. O usuário recebe a atualização instantaneamente no próximo recarregamento.
+3. **Código Limpo:** Sem plugins do Capacitor, o pacote final é mais leve, sem dependências sujeitas à quebras em atualizações de SDK do Android.

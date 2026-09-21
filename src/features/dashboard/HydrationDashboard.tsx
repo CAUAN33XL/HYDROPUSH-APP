@@ -111,8 +111,7 @@ export function HydrationDashboard({ data, onAddDrink, onReset, isLoading = fals
               >
                 <button
                   onClick={handleUndo}
-                  disabled={isLoading}
-                  className="flex items-center gap-2 bg-amber-100 dark:bg-amber-900/30 text-amber-800 dark:text-amber-200 px-5 py-2.5 rounded-full border border-amber-200 dark:border-amber-800 hover:bg-amber-200 dark:hover:bg-amber-800/50 transition-all duration-200 disabled:opacity-50 disabled:cursor-not-allowed shadow-sm"
+                  className="flex items-center gap-2 px-4 py-2 bg-destructive/10 text-destructive rounded-full hover:bg-destructive/20 transition-colors"
                 >
                   <Undo2 size={18} />
                   <span className="text-sm font-medium">Desfazer (+{lastAddedAmount}ml)</span>

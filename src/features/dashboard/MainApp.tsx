@@ -1,5 +1,7 @@
 import React, { useState, useEffect, useCallback, useMemo } from 'react';
-import { Droplets, BarChart3, User, BookOpen, Settings, AlertCircle } from 'lucide-react';
+import { Droplets, BarChart3, User, BookOpen, Settings, AlertCircle, Gamepad2, Map } from 'lucide-react';
+import { MinigamesHub } from '../minigames/MinigamesHub';
+import { MetaverseWorld } from '../metaverse/MetaverseWorld';
 import { motion } from 'motion/react';
 import { toast } from 'sonner';
 import { useAuth } from '../../contexts/AuthContext';
@@ -172,9 +174,15 @@ export function MainApp() {
                     description: 'Você está mantendo uma ótima hidratação!',
                     duration: 5000,
                 });
-                // if (navigator.vibrate) {
-                //    navigator.vibrate([100, 50, 100]); 
-                // }
+                
+                // Pagar dívida se tiver (100 XP por dia batido)
+                const reduced = storageService.reduceDailyPenalty(100);
+                if (reduced > 0) {
+                     toast.success('Dívida Paga!', {
+                         description: `Você recuperou sua consistência e reduziu a penalidade em ${reduced} XP!`,
+                         duration: 6000,
+                     });
+                }
             }
         } catch (err) {
             console.error('Erro ao adicionar bebida:', err);
@@ -276,7 +284,17 @@ export function MainApp() {
                 );
             case 'settings':
                 return (
-                    <SettingsView />
+                    <SettingsView onNavigate={handleTabChange} />
+                );
+            case 'minigames':
+                return (
+                    <MinigamesHub />
+                );
+            case 'metaverse':
+                return (
+                    <div className="w-full h-full relative" style={{ minHeight: 'calc(100vh - 180px)' }}>
+                         <MetaverseWorld onNavigate={handleTabChange} hydrationData={hydrationData} />
+                    </div>
                 );
             default:
                 return (
@@ -292,9 +310,10 @@ export function MainApp() {
 
     const navigationItems = [
         { id: 'home', icon: Droplets, label: 'Início' },
-        { id: 'stats', icon: BarChart3, label: 'Estatísticas' },
-        { id: 'profile', icon: User, label: 'Perfil' },
+        { id: 'stats', icon: BarChart3, label: 'Progresso' },
+        { id: 'minigames', icon: Gamepad2, label: 'Fliperama' },
         { id: 'history', icon: BookOpen, label: 'Histórico' },
+        { id: 'profile', icon: User, label: 'Perfil' },
         { id: 'settings', icon: Settings, label: 'Configurações' },
     ] as const;
 
